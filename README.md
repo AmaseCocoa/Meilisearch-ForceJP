@@ -1,6 +1,8 @@
 # Meilisearch-Japanese
 [![Publish binaries to GitHub release](https://github.com/AmaseCocoa/Meilisearch-Japanese/actions/workflows/publish.yml/badge.svg)](https://github.com/AmaseCocoa/Meilisearch-Japanese/actions/workflows/publish.yml) [![Check for new Meilisearch releases](https://github.com/AmaseCocoa/Meilisearch-Japanese/actions/workflows/check.yml/badge.svg)](https://github.com/AmaseCocoa/Meilisearch-Japanese/actions/workflows/check.yml)
 
-Meilisearch binary with Chinese tokenization disabled for improved accuracy.
-## What is this?
-Unofficial build for non-Docker at https://github.com/meilisearch/meilisearch/pull/3882.
+日本語の精度を向上させるために中国語のトークン化を無効にしたMeilisearchビルド。
+
+MeilisearchのビルドにはオリジナルのActionsを一部改変して利用しています。
+## これは何？
+非Docker向けのhttps://github.com/meilisearch/meilisearch/pull/3882 の非公式ビルド。リリースを検知したら自動的にビルドされます。
