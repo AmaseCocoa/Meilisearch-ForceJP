@@ -2,6 +2,8 @@ name: Publish binaries to GitHub release
 
 on:
   workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   check-version:
@@ -42,6 +44,13 @@ jobs:
       with:
         repository: meilisearch/meilisearch
         path: meilisearch
+        fetch-depth: 0
+    - name: Checkout specific tag in meilisearch repo
+      run: |
+        cd meilisearch
+        git fetch --tags
+        git checkout ${{ github.event.release.tag_name }}
+        cd ..
     - name: Install needed dependencies
       run: |
         apt-get update && apt-get install -y curl
@@ -82,6 +91,13 @@ jobs:
       with:
         repository: meilisearch/meilisearch
         path: meilisearch
+        fetch-depth: 0
+    - name: Checkout specific tag in meilisearch repo
+      run: |
+        cd meilisearch
+        git fetch --tags
+        git checkout ${{ github.event.release.tag_name }}
+        cd ..
     - name: Build
       run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
     # No need to upload binaries for dry run (cron)
@@ -111,6 +127,13 @@ jobs:
         with:
           repository: meilisearch/meilisearch
           path: meilisearch
+          fetch-depth: 0
+      - name: Checkout specific tag in meilisearch repo
+        run: |
+          cd meilisearch
+          git fetch --tags
+          git checkout ${{ github.event.release.tag_name }}
+          cd ..
       - name: Installing Rust toolchain
         uses: dtolnay/rust-toolchain@1.79
         with:
@@ -153,6 +176,13 @@ jobs:
         with:
           repository: meilisearch/meilisearch
           path: meilisearch
+          fetch-depth: 0
+      - name: Checkout specific tag in meilisearch repo
+        run: |
+          cd meilisearch
+          git fetch --tags
+          git checkout ${{ github.event.release.tag_name }}
+          cd ..
       - name: Install needed dependencies
         run: |
           apt-get update -y && apt upgrade -y
@@ -190,7 +220,7 @@ jobs:
         env:
           CROSS_DOCKER_IN_DOCKER: true
       - name: List target output files
-        run: ls -lR ./target
+        run: ls -lR ./meilisearch/target
       - name: Upload the binary to release
         # No need to upload binaries for dry run (cron)
         if: github.event_name == 'release'
