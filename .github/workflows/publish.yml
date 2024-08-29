@@ -1,6 +1,7 @@
 name: Publish binaries to GitHub release
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
 
@@ -117,7 +118,7 @@ jobs:
         uses: svenstaro/upload-release-action@2.7.0
         with:
           repo_token: ${{ secrets.GH_PAT }}
-          file: target/${{ matrix.target }}/release/meilisearch
+          file: meilisearch/target/${{ matrix.target }}/release/meilisearch
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
 
@@ -188,6 +189,6 @@ jobs:
         uses: svenstaro/upload-release-action@2.7.0
         with:
           repo_token: ${{ secrets.GH_PAT }}
-          file: target/${{ matrix.target }}/release/meilisearch
+          file: meilisearch/target/${{ matrix.target }}/release/meilisearch
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
