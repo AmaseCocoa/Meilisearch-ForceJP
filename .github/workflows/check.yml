@@ -52,7 +52,7 @@ jobs:
             -d '{
               "tag_name": "${{ steps.latest_release.outputs.latest_release }}",
               "name": "${{ steps.latest_release.outputs.latest_release }}",
-              "body": "Japanized Build for https://github.com/meilisearch/meilisearch/releases/tag/${{ steps.latest_release.outputs.latest_release }}",
+              "body": "Build for https://github.com/meilisearch/meilisearch/releases/tag/${{ steps.latest_release.outputs.latest_release }}",
               "draft": false,
               "prerelease": false
             }'
