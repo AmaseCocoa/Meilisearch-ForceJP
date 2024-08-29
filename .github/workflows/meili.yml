@@ -1,13 +1,15 @@
 name: Build Meilisearch
 
 on:
-  workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'
 
 jobs:
   check-and-publish:
     runs-on: ubuntu-latest
+    outputs:
+      new_release: ${{ steps.check_new_release.outputs.new_release }}
+      latest_release: ${{ steps.get_release.outputs.latest_release }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -17,6 +19,7 @@ jobs:
         run: |
           latest_release=$(curl -s https://api.github.com/repos/meilisearch/meilisearch/releases/latest | jq -r .tag_name)
           echo "latest_release=$latest_release" >> $GITHUB_ENV
+          echo "latest_release=$latest_release" >> $GITHUB_OUTPUT
 
       - name: Check if new release exists
         id: check_new_release
@@ -25,19 +28,20 @@ jobs:
           echo "current_release=$current_release" >> $GITHUB_ENV
           if [ "$latest_release" != "$current_release" ]; then
             echo "new_release=true" >> $GITHUB_ENV
+            echo "new_release=true" >> $GITHUB_OUTPUT
           else
             echo "new_release=false" >> $GITHUB_ENV
-          fi
+            echo "new_release=false" >> $GITHUB_OUTPUT
 
       - name: Create new release and tag
-        if: env.new_release == 'true'
+        if: ${{ steps.check_new_release.outputs.new_release == 'true' }}
         run: |
-          git tag $latest_release
-          git push origin $latest_release
-          gh release create $latest_release --repo meilisearch/meilisearch --title "$latest_release" --notes "Automated release of Meilisearch $latest_release"
+          git tag ${{ steps.get_release.outputs.latest_release }}
+          git push origin ${{ steps.get_release.outputs.latest_release }}
+          gh release create ${{ steps.get_release.outputs.latest_release }} --repo meilisearch/meilisearch --title "${{ steps.get_release.outputs.latest_release }}" --notes "Automated release of Meilisearch ${{ steps.get_release.outputs.latest_release }}"
 
   publish-linux:
-    if: env.new_release == 'true'
+    if: ${{ needs.check-and-publish.outputs.new_release == 'true' }}
     runs-on: ubuntu-latest
     container:
       image: ubuntu:20.04
@@ -55,10 +59,10 @@ jobs:
           repo_token: ${{ secrets.GH_PAT }}
           file: target/release/meilisearch
           asset_name: meilisearch-linux-amd64
-          tag: ${{ env.latest_release }}
+          tag: ${{ needs.check-and-publish.outputs.latest_release }}
 
   publish-macos-windows:
-    if: env.new_release == 'true'
+    if: ${{ needs.check-and-publish.outputs.new_release == 'true' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -82,10 +86,10 @@ jobs:
           repo_token: ${{ secrets.GH_PAT }}
           file: target/release/${{ matrix.artifact_name }}
           asset_name: ${{ matrix.asset_name }}
-          tag: ${{ env.latest_release }}
+          tag: ${{ needs.check-and-publish.outputs.latest_release }}
 
   publish-macos-apple-silicon:
-    if: env.new_release == 'true'
+    if: ${{ needs.check-and-publish.outputs.new_release == 'true' }}
     runs-on: macos-12
     strategy:
       matrix:
@@ -109,10 +113,10 @@ jobs:
           repo_token: ${{ secrets.GH_PAT }}
           file: target/${{ matrix.target }}/release/meilisearch
           asset_name: ${{ matrix.asset_name }}
-          tag: ${{ env.latest_release }}
+          tag: ${{ needs.check-and-publish.outputs.latest_release }}
 
   publish-aarch64:
-    if: env.new_release == 'true'
+    if: ${{ needs.check-and-publish.outputs.new_release == 'true' }}
     runs-on: ubuntu-latest
     env:
       DEBIAN_FRONTEND: noninteractive
@@ -150,4 +154,4 @@ jobs:
           repo_token: ${{ secrets.GH_PAT }}
           file: target/${{ matrix.target }}/release/meilisearch
           asset_name: ${{ matrix.asset_name }}
-          tag: ${{ env.latest_release }}
+          tag: ${{ needs.check-and-publish.outputs.latest_release }}
