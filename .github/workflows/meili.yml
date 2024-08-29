@@ -1,163 +1,42 @@
-name: Build Meilisearch
+name: Check for new Meilisearch releases
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 */12 * * *'
 
 jobs:
-  check-and-publish:
+
+  check-releases:
     runs-on: ubuntu-latest
-    outputs:
-      new_release: ${{ steps.check_new_release.outputs.new_release }}
-      latest_release: ${{ steps.get_release.outputs.latest_release }}
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Get latest Meilisearch release
-        id: get_release
-        run: |
-          latest_release=$(curl -s https://api.github.com/repos/meilisearch/meilisearch/releases/latest | jq -r .tag_name)
-          echo "latest_release=$latest_release" >> $GITHUB_ENV
-          echo "latest_release=$latest_release" >> $GITHUB_OUTPUT
-
-      - name: Check if new release exists
-        id: check_new_release
-        shell: bash
-        run: |
-          current_release=$(git tag | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
-          echo "current_release=$current_release" >> $GITHUB_ENV
-          echo "current_release=$current_release" >> $GITHUB_OUTPUT
-          if [ "$latest_release" != "$current_release" ]; then
-            echo "new_release=true" >> $GITHUB_ENV
-            echo "new_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "new_release=false" >> $GITHUB_ENV
-            echo "new_release=false" >> $GITHUB_OUTPUT
-          fi
-        env:
-          latest_release: ${{ steps.get_release.outputs.latest_release }}
-
-      - name: Create new release and tag
-        if: ${{ steps.check_new_release.outputs.new_release == 'true' }}
-        run: |
-          git tag ${{ steps.get_release.outputs.latest_release }}
-          git push origin ${{ steps.get_release.outputs.latest_release }}
-          gh release create ${{ steps.get_release.outputs.latest_release }} --repo meilisearch/meilisearch --title "${{ steps.get_release.outputs.latest_release }}" --notes "Automated release of Meilisearch ${{ steps.get_release.outputs.latest_release }}"
-
-  publish-linux:
-    if: ${{ needs.check-and-publish.outputs.new_release == 'true' }}
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get install -y curl build-essential
-      - uses: dtolnay/rust-toolchain@1.79
-      - name: Build
-        run: cargo build --release --locked
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@2.7.0
-        with:
-          repo_token: ${{ secrets.GH_PAT }}
-          file: target/release/meilisearch
-          asset_name: meilisearch-linux-amd64
-          tag: ${{ needs.check-and-publish.outputs.latest_release }}
-
-  publish-macos-windows:
-    if: ${{ needs.check-and-publish.outputs.new_release == 'true' }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-12, windows-2022]
-        include:
-          - os: macos-12
-            artifact_name: meilisearch
-            asset_name: meilisearch-macos-amd64
-          - os: windows-2022
-            artifact_name: meilisearch.exe
-            asset_name: meilisearch-windows-amd64.exe
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@1.79
-      - name: Build
-        run: cargo build --release --locked
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@2.7.0
-        with:
-          repo_token: ${{ secrets.GH_PAT }}
-          file: target/release/${{ matrix.artifact_name }}
-          asset_name: ${{ matrix.asset_name }}
-          tag: ${{ needs.check-and-publish.outputs.latest_release }}
-
-  publish-macos-apple-silicon:
-    if: ${{ needs.check-and-publish.outputs.new_release == 'true' }}
-    runs-on: macos-12
-    strategy:
-      matrix:
-        include:
-          - target: aarch64-apple-darwin
-            asset_name: meilisearch-macos-apple-silicon
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@1.79
-        with:
-          profile: minimal
-          target: ${{ matrix.target }}
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@2.7.0
-        with:
-          repo_token: ${{ secrets.GH_PAT }}
-          file: target/${{ matrix.target }}/release/meilisearch
-          asset_name: ${{ matrix.asset_name }}
-          tag: ${{ needs.check-and-publish.outputs.latest_release }}
-
-  publish-aarch64:
-    if: ${{ needs.check-and-publish.outputs.new_release == 'true' }}
-    runs-on: ubuntu-latest
-    env:
-      DEBIAN_FRONTEND: noninteractive
-    container:
-      image: ubuntu:20.04
-    strategy:
-      matrix:
-        include:
-          - target: aarch64-unknown-linux-gnu
-            asset_name: meilisearch-linux-aarch64
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get install -y curl build-essential gcc-aarch64-linux-gnu
-      - uses: dtolnay/rust-toolchain@1.79
-        with:
-          profile: minimal
-          target: ${{ matrix.target }}
-      - name: Configure target aarch64 GNU
-        run: |
-          echo '[target.aarch64-unknown-linux-gnu]' >> ~/.cargo/config
-          echo 'linker = "aarch64-linux-gnu-gcc"' >> ~/.cargo/config
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          use-cross: true
-          args: --release --target ${{ matrix.target }}
-        env:
-          CROSS_DOCKER_IN_DOCKER: true
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@2.7.0
-        with:
-          repo_token: ${{ secrets.GH_PAT }}
-          file: target/${{ matrix.target }}/release/meilisearch
-          asset_name: ${{ matrix.asset_name }}
-          tag: ${{ needs.check-and-publish.outputs.latest_release }}
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Get latest Meilisearch release
+      id: latest_release
+      run: |
+        latest_release=$(curl -s https://api.github.com/repos/meilisearch/meilisearch/releases/latest | jq -r ".tag_name")
+        echo "latest_release=$latest_release" >> $GITHUB_OUTPUT
+        
+    - name: Check if new release exists
+      id: new_release
+      run: |
+        previous_release=$(cat .github/previous.txt || echo "")
+        if [ "$previous_release" != "${{ steps.latest_release.outputs.latest_release }}" ]; then
+          echo "new_release=true" >> $GITHUB_OUTPUT
+        else
+          echo "new_release=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Create new tag
+      if: steps.new_release.outputs.new_release == 'true'
+      run: |
+        git tag ${{ steps.latest_release.outputs.latest_release }}
+        git push origin ${{ steps.latest_release.outputs.latest_release }}
+        
+    - name: Save latest release
+      if: steps.new_release.outputs.new_release == 'true'
+      run: |
+        echo "${{ steps.latest_release.outputs.latest_release }}" > .github/previous.txt
