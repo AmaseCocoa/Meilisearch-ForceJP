@@ -1,12 +1,7 @@
 name: Publish binaries to GitHub release
 
 on:
-  workflow_dispatch:
   workflow_call:
-  schedule:
-    - cron: '0 2 * * *' # Every day at 2:00am
-  release:
-    types: [published]
 
 jobs:
   check-version:
