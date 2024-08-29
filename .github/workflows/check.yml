@@ -1,7 +1,6 @@
 name: Check for new Meilisearch releases
 
 on:
-  workflow_dispatch:
   schedule:
     - cron: '0 */12 * * *'
 
@@ -16,8 +15,10 @@ jobs:
       
     - name: Get latest Meilisearch release
       id: latest_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
       run: |
-        latest_release=$(curl -s https://api.github.com/repos/meilisearch/meilisearch/releases/latest | jq -r ".tag_name")
+        latest_release=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/meilisearch/meilisearch/releases/latest | jq -r ".tag_name")
         echo "latest_release=$latest_release" >> $GITHUB_OUTPUT
         
     - name: Check if new release exists
@@ -32,6 +33,8 @@ jobs:
         
     - name: Create new tag
       if: steps.new_release.outputs.new_release == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
       run: |
         git tag ${{ steps.latest_release.outputs.latest_release }}
         git push origin ${{ steps.latest_release.outputs.latest_release }}
@@ -40,3 +43,20 @@ jobs:
       if: steps.new_release.outputs.new_release == 'true'
       run: |
         echo "${{ steps.latest_release.outputs.latest_release }}" > .github/previous.txt
+        
+    - name: Trigger new workflow
+      if: steps.new_release.outputs.new_release == 'true'
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      run: |
+        git push origin ${{ steps.latest_release.outputs.latest_release }}
+        
+        workflow_dispatch:
+          inputs:
+            tag:
+              description: 'Tag to use for new workflow'
+              required: true
+              default: ${{ steps.latest_release.outputs.latest_release }}
