@@ -37,13 +37,18 @@ jobs:
       image: ubuntu:20.04
     steps:
     - uses: actions/checkout@v3
+    - name: Checkout meilisearch repo
+      uses: actions/checkout@v3
+      with:
+        repository: meilisearch/meilisearch
+        path: meilisearch
     - name: Install needed dependencies
       run: |
         apt-get update && apt-get install -y curl
         apt-get install build-essential -y
     - uses: dtolnay/rust-toolchain@1.79
     - name: Build
-      run: cargo build --release --locked -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
+      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
     # No need to upload binaries for dry run (cron)
     - name: Upload binaries to release
       if: github.event_name == 'release'
@@ -72,8 +77,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: dtolnay/rust-toolchain@1.79
+    - name: Checkout meilisearch repo
+      uses: actions/checkout@v3
+      with:
+        repository: meilisearch/meilisearch
+        path: meilisearch
     - name: Build
-      run: cargo build --release --locked -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
+      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
     # No need to upload binaries for dry run (cron)
     - name: Upload binaries to release
       if: github.event_name == 'release'
@@ -96,6 +106,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Checkout meilisearch repo
+        uses: actions/checkout@v3
+        with:
+          repository: meilisearch/meilisearch
+          path: meilisearch
       - name: Installing Rust toolchain
         uses: dtolnay/rust-toolchain@1.79
         with:
@@ -105,7 +120,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
+          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
       - name: Upload the binary to release
         # No need to upload binaries for dry run (cron)
         if: github.event_name == 'release'
@@ -133,6 +148,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Checkout meilisearch repo
+        uses: actions/checkout@v3
+        with:
+          repository: meilisearch/meilisearch
+          path: meilisearch
       - name: Install needed dependencies
         run: |
           apt-get update -y && apt upgrade -y
@@ -166,7 +186,7 @@ jobs:
         with:
           command: build
           use-cross: true
-          args: --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
+          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
         env:
           CROSS_DOCKER_IN_DOCKER: true
       - name: List target output files
