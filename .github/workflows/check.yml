@@ -43,20 +43,3 @@ jobs:
       if: steps.new_release.outputs.new_release == 'true'
       run: |
         echo "${{ steps.latest_release.outputs.latest_release }}" > .github/previous.txt
-        
-    - name: Trigger new workflow
-      if: steps.new_release.outputs.new_release == 'true'
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-      run: |
-        git push origin ${{ steps.latest_release.outputs.latest_release }}
-        
-        workflow_dispatch:
-          inputs:
-            tag:
-              description: 'Tag to use for new workflow'
-              required: true
-              default: ${{ steps.latest_release.outputs.latest_release }}
