@@ -1,8 +1,9 @@
 name: Build Meilisearch
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '0 */12 * * *'
+    - cron: '*/5 * * * *'
 
 jobs:
   check-and-publish:
