@@ -34,7 +34,7 @@ jobs:
       uses: svenstaro/upload-release-action@2.7.0
       with:
         repo_token: ${{ secrets.GH_PAT }}
-        file: target/release/meilisearch
+        file: meilisearch/target/release/meilisearch
         asset_name: meilisearch-linux-amd64
         tag: ${{ github.ref }}
 
@@ -75,7 +75,7 @@ jobs:
       uses: svenstaro/upload-release-action@2.7.0
       with:
         repo_token: ${{ secrets.GH_PAT }}
-        file: target/release/${{ matrix.artifact_name }}
+        file: meilisearch/target/release/${{ matrix.artifact_name }}
         asset_name: ${{ matrix.asset_name }}
         tag: ${{ github.ref }}
 
