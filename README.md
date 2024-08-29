@@ -6,3 +6,8 @@
 MeilisearchのビルドにはオリジナルのActionsを一部改変して利用しています。
 ## これは何？
 非Docker向けのhttps://github.com/meilisearch/meilisearch/pull/3882 の非公式ビルド。リリースを検知したら自動的にビルドされます。
+
+これはビルド時にフラグを追加しているだけなのでローカルでビルドすることもできます。
+
+### 参考
+https://github.com/meilisearch/meilisearch/issues/4561#issuecomment-2058594295
