@@ -43,3 +43,6 @@ jobs:
       if: steps.new_release.outputs.new_release == 'true'
       run: |
         echo "${{ steps.latest_release.outputs.latest_release }}" > .github/previous.txt
+    - name: call builder
+      if: steps.new_release.outputs.new_release == 'true'
+      uses: ./.github/workflows/publish-bin.yml
