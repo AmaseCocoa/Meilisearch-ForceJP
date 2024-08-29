@@ -1,7 +1,6 @@
 name: Publish binaries to GitHub release
 
 on:
-  workflow_dispatch:
   release:
     types: [published]
 
