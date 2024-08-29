@@ -27,6 +27,7 @@ jobs:
     - name: Checkout specific tag in meilisearch repo
       run: |
         cd meilisearch
+        chmod g+rwx .git
         git fetch --tags
         git checkout ${{ github.event.release.tag_name }}
         cd ..
@@ -156,6 +157,7 @@ jobs:
       - name: Checkout specific tag in meilisearch repo
         run: |
           cd meilisearch
+          chmod g+rwx .git
           git fetch --tags
           git checkout ${{ github.event.release.tag_name }}
           cd ..
