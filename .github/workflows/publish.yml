@@ -27,7 +27,7 @@ jobs:
         cd ..
     - uses: dtolnay/rust-toolchain@1.79
     - name: Build
-      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
+      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "japanese"
     # No need to upload binaries for dry run (cron)
     - name: Upload binaries to release
       if: github.event_name == 'release'
@@ -68,7 +68,7 @@ jobs:
         git checkout ${{ github.event.release.tag_name }}
         cd ..
     - name: Build
-      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
+      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "japanese"
     # No need to upload binaries for dry run (cron)
     - name: Upload binaries to release
       if: github.event_name == 'release'
@@ -111,7 +111,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
+          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "japanese"
       - name: Upload the binary to release
         # No need to upload binaries for dry run (cron)
         if: github.event_name == 'release'
@@ -178,7 +178,7 @@ jobs:
         with:
           command: build
           use-cross: true
-          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "analytics mini-dashboard japanese"
+          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "japanese"
         env:
           CROSS_DOCKER_IN_DOCKER: true
       - name: List target output files
