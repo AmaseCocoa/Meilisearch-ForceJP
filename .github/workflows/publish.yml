@@ -25,7 +25,8 @@ jobs:
         git fetch --tags
         git checkout ${{ github.event.release.tag_name }}
         cd ..
-    - uses: dtolnay/rust-toolchain@1.79
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
     - name: Build
       run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "japanese"
     # No need to upload binaries for dry run (cron)
@@ -54,7 +55,8 @@ jobs:
             asset_name: meilisearch-windows-amd64.exe
     steps:
     - uses: actions/checkout@v3
-    - uses: dtolnay/rust-toolchain@1.79
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
     - name: Checkout meilisearch repo
       uses: actions/checkout@v3
       with:
@@ -103,7 +105,8 @@ jobs:
           git checkout ${{ github.event.release.tag_name }}
           cd ..
       - name: Installing Rust toolchain
-        uses: dtolnay/rust-toolchain@1.79
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
         with:
           profile: minimal
           target: ${{ matrix.target }}
@@ -156,7 +159,8 @@ jobs:
           add-apt-repository "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
           apt-get update -y && apt-get install -y docker-ce
       - name: Installing Rust toolchain
-        uses: dtolnay/rust-toolchain@1.79
+      - uses: dtolnay/rust-toolchain@1.79
+      - uses: Swatinem/rust-cache@v2
         with:
           profile: minimal
           target: ${{ matrix.target }}
