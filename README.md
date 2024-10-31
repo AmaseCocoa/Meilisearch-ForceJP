@@ -13,3 +13,10 @@ Actionsが動いていない時はご報告下さい。
 
 ### 参考
 https://github.com/meilisearch/meilisearch/issues/4561#issuecomment-2058594295
+## FAQ
+### ソースコードは？
+オリジナルのMeiliSearchから変更されていないため公開していません。
+
+ビルドアクションのコードは[check.yml (リリース確認、作成自動化用)](https://github.com/AmaseCocoa/Meilisearch-ForceJP/blob/main/.github/workflows/check.yml)と[publish.yml (ビルドしたものをReleasesにバイナリをアップロードする用、本家のアクションベース)](https://github.com/AmaseCocoa/Meilisearch-ForceJP/blob/main/.github/workflows/publish.yml)です。
+### 何が違うの？
+日本語検索の精度を向上させるために中国語のトークン化が無効になっています。
