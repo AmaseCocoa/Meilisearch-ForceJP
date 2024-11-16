@@ -26,7 +26,7 @@ jobs:
         cd ..
     - uses: dtolnay/rust-toolchain@stable
     - name: Build
-      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "japanese"
+      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "japanese mini-dashboard"
     - name: Upload binaries to release
       if: github.event_name == 'release'
       uses: svenstaro/upload-release-action@2.7.0
@@ -66,7 +66,7 @@ jobs:
         git checkout ${{ github.event.release.tag_name }}
         cd ..
     - name: Build
-      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "japanese"
+      run: cargo build --manifest-path=meilisearch/Cargo.toml --release --locked -p meilisearch -p meilitool --no-default-features --features "japanese mini-dashboard"
     - name: Upload binaries to release
       if: github.event_name == 'release'
       uses: svenstaro/upload-release-action@2.7.0
@@ -108,7 +108,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "japanese"
+          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "japanese mini-dashboard"
       - name: Upload the binary to release
         if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@2.7.0
@@ -168,7 +168,7 @@ jobs:
         with:
           command: build
           use-cross: true
-          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "japanese"
+          args: --manifest-path=meilisearch/Cargo.toml --release --target ${{ matrix.target }} -p meilisearch -p meilitool --no-default-features --features "japanese  mini-dashboard"
         env:
           CROSS_DOCKER_IN_DOCKER: true
       - name: List target output files
