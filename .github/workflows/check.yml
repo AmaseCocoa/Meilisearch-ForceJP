@@ -24,8 +24,19 @@ jobs:
         latest_release=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/meilisearch/meilisearch/releases/latest | jq -r ".tag_name")
         echo "latest_release=$latest_release" >> $GITHUB_OUTPUT
         
+    - name: Check if there are existing tags
+      id: check_tags
+      run: |
+        existing_tags=$(git tag)
+        if echo "$existing_tags" | grep -q "${{ steps.latest_release.outputs.latest_release }}"; then
+          echo "tags_exist=true" >> $GITHUB_OUTPUT
+        else
+          echo "tags_exist=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Check if new minor version release exists
       id: new_release
+      if: steps.check_tags.outputs.tags_exist == 'false'
       run: |
         previous_release=$(cat .github/previous.txt || echo "")
         latest_minor_version=$(echo "${{ steps.latest_release.outputs.latest_release }}" | awk -F. '{print $1"."$2}')
@@ -64,4 +75,3 @@ jobs:
       if: steps.new_release.outputs.new_release == 'true'
       run: |
         echo "${{ steps.latest_release.outputs.latest_release }}" > .github/previous.txt
-
