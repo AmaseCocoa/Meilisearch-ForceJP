@@ -42,9 +42,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-12, windows-2022]
+        os: [macos-14, windows-2022]
         include:
-          - os: macos-12
+          - os: macos-14
             artifact_name: meilisearch
             asset_name: meilisearch-macos-amd64
           - os: windows-2022
